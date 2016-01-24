@@ -1,14 +1,13 @@
-# SSH server based on baseimage-docker, with support for
-# SSH certificates.
-
 # I know I should attach to a particular revision... but
-# let's just ride on *master* for the time being
+# let's just ride on *latest* for the time being.
 FROM phusion/baseimage:latest
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
+# Enable ssh service and expose port 22
 RUN rm -f /etc/service/sshd/down
+EXPOSE 22
 
 # Regenerate SSH host keys. baseimage-docker does not contain any, so you
 # have to do that yourself. You may also comment out this instruction; the
