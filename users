@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+# If the environment variable "NEWUSER" is set, this script creates the
+# given user with a random password.
+#
+# The UID and GID are set to 1000 unless specified. You can specify the
+# UID by adding an environment variable "NEWUSER_UID", for example:
+#
+# NEWUSER=myuser
+# NEWUSER_UID=1500
+#
+# The GID is set to be the same as the UID.
+#
+# If you want the user to be in some additional groups, you can add the
+# environment variable NEWUSER_GROUPS, with a comma separated list of
+# groups like:
+#
+# NEWUSER_GROUPS=sudo,dev
+#
+# Since the password is random, using sudo may prove impossible. If you want
+# to use sudo, either log into the container as the root user and change the
+# password for your regular user, or enable passwordless sudo, which you can
+# do by defining the following environment variable:
+#
+# NEWUSER_SUDO=Y
+
+if ! [ -z "$NEWUSER" ]; then
+
+    # UID defaults to 1000 if undefined
+    if [ -z "$NEWUSER_UID" ]; then
+        NEWUSER_UID=1000
+    fi
+
+    # Only if user does not exist yet
+    if ! id -u "$NEWUSER"; then
+
+        # Add main user group
+        groupadd -g "$NEWUSER_UID" "$NEWUSER"
+
+        # Add user with randomized password. Password is required
+        # for the account to be unlocked and the user to be able to log
+        # in with ssh, even when we do not allow password-based
+        # authentication in ssh.
+        PASS=`openssl rand -base64 32`
+        if [ -z "$NEWUSER_GROUPS" ]; then
+            useradd  -g "$NEWUSER_UID" -m -u "$NEWUSER_UID" -s /bin/bash \
+                     -d "/home/$NEWUSER" -p "$PASS" "$NEWUSER"
+        else
+            useradd  -g "$NEWUSER_UID" -m -u "$NEWUSER_UID" -s /bin/bash \
+                     -G "$NEWUSER_GROUPS" \
+                     -d "/home/$NEWUSER" -p "$PASS" "$NEWUSER"
+        fi
+
+        # If required, enable passwordless sudo
+        if ! [ -z "$NEWUSER_SUDO" ]; then
+            if [[ "$NEWUSER_SUDO" == "Y"* ]]; then
+                SUDOERS_FILE="/etc/sudoers.d/$NEWUSER"
+                echo "$NEWUSER ALL = (ALL) NOPASSWD:ALL" > "$SUDOERS_FILE"
+                chmod 0440 "$SUDOERS_FILE"
+            fi
+        fi
+    fi
+fi 

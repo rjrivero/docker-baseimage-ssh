@@ -18,5 +18,8 @@ EXPOSE 22
 # VOLUME /etc/ssh/users_ca.pub
 
 # Add the proper configuration to SSH config file
-ADD config_ssh.sh /tmp/config_ssh.sh
-RUN /tmp/config_ssh.sh && rm -f /tmp/config_ssh.sh
+RUN echo "TrustedUserCAKeys /etc/ssh/users_ca.pub" >> /etc/ssh/sshd_config; \
+    echo "PasswordAuthentication no"               >> /etc/ssh/sshd_config
+
+# Run the user management script at boot time
+ADD users /etc/my_init.d/users
