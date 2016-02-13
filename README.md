@@ -98,13 +98,13 @@ Adding users at boot time
 
 You can also add your user at boot time instead of build time. You only need to provide the following environment variables when launching the container with docker:
 
-  - NEWUSER: Username to add.
+  - **NEWUSER**: Username to add.
 
-  - NEWUSER_UID: UID you want for the new user, defaults to 1000.
+  - **NEWUSER_UID**: UID you want for the new user, defaults to 1000.
 
-  - NEWUSER_GROUPS: Comma-separated list of groups to add your user to.
+  - **NEWUSER_GROUPS**: Comma-separated list of groups to add your user to.
 
-  - NEWUSER_SUDO: If **YES**, the user can run passwordless sudo.
+  - **NEWUSER_SUDO**: If **YES**, the user can run passwordless sudo.
 
 For example, if you want to add an user named **myuser**, with UID **955**, in groups **sudo** and **audio**, and capable of passwordless sudo, you run:
 
@@ -116,6 +116,7 @@ docker run --rm -it --name ssh-container \
     -e NEWUSER_GROUPS=sudo,audio \
     -e NEWUSER_SUDO=YES \
     rjrivero/baseimage-ssh
+```
 
 Login as non root user
 ----------------------
