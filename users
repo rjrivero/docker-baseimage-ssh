@@ -52,6 +52,7 @@ if ! [ -z "$NEWUSER" ]; then
                      -G "$NEWUSER_GROUPS" \
                      -d "/home/$NEWUSER" -p "$PASS" "$NEWUSER"
         fi
+        chown -R "$NEWUSER:$NEWUSER" "/home/$NEWUSER"
 
         # If required, enable passwordless sudo
         if ! [ -z "$NEWUSER_SUDO" ]; then
